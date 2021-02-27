@@ -138,7 +138,7 @@ subprojects {
       --enable-https
       --enable-http
       -Dspring.spel.ignore=false
-      -Dspring.native.remove-yaml-support=true
+      -Dspring.native.remove-yaml-support=false
       """.trimIndent()
     )
 
