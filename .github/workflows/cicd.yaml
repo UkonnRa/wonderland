@@ -13,10 +13,15 @@ jobs:
         with:
           java-version: 11
       - name: Check & Test with Gradle
-        run: ./gradlew clean check
-      - name: Build DoorKnob Authentication image
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
-          export IMAGE_TAG=$(echo ${GITHUB_REF#refs/heads/} | tr / _)
+          ./gradlew clean check
+          bash <(curl -s https://codecov.io/bash)
+      - name: Build DoorKnob Authentication image
+        env:
+          IMAGE_TAG: $(echo ${GITHUB_REF#refs/heads/} | tr / _)
+        run: |
           ./gradlew :doorknob-authentication:bootBuildImage \
             -PimageTag=${IMAGE_TAG}_${GITHUB_RUN_NUMBER} \
             -Pproduction \

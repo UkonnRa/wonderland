@@ -1,6 +1,7 @@
 plugins {
-  jacoco
   idea
+  java
+  jacoco
 
   id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
   id("io.gitlab.arturbosch.detekt") version "1.16.0-RC2"
@@ -22,8 +23,19 @@ object Versions {
 }
 
 allprojects {
+  apply(plugin = "idea")
+  apply(plugin = "java")
+  apply(plugin = "jacoco")
+
   apply(plugin = "org.jlleitschuh.gradle.ktlint")
   apply(plugin = "io.gitlab.arturbosch.detekt")
+
+  apply(plugin = "com.github.ben-manes.versions")
+  apply(plugin = "org.springframework.boot")
+  apply(plugin = "io.spring.dependency-management")
+  apply(plugin = "org.jetbrains.kotlin.jvm")
+  apply(plugin = "org.jetbrains.kotlin.kapt")
+  apply(plugin = "org.jetbrains.kotlin.plugin.spring")
 
   group = "com.ukonnra"
   version = "0.0.1"
@@ -58,16 +70,6 @@ allprojects {
 }
 
 subprojects {
-  apply(plugin = "idea")
-  apply(plugin = "jacoco")
-
-  apply(plugin = "com.github.ben-manes.versions")
-  apply(plugin = "org.springframework.boot")
-  apply(plugin = "io.spring.dependency-management")
-  apply(plugin = "org.jetbrains.kotlin.jvm")
-  apply(plugin = "org.jetbrains.kotlin.kapt")
-  apply(plugin = "org.jetbrains.kotlin.plugin.spring")
-
   kapt.includeCompileClasspath = false
 
   configurations {
@@ -101,9 +103,7 @@ subprojects {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-      exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
-    }
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
   }
 
   tasks.compileKotlin {
@@ -153,4 +153,25 @@ subprojects {
       }
     }
   }
+}
+
+val codeCoverageReport = tasks.register<JacocoReport>("codeCoverageReport") {
+  setDependsOn(subprojects.map { it.tasks.test })
+
+  executionData(fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec"))
+
+  subprojects.forEach {
+    sourceSets(it.sourceSets["main"])
+  }
+
+  reports {
+    xml.isEnabled = true
+    xml.destination = file("$buildDir/reports/jacoco/report.xml")
+    html.isEnabled = true
+    csv.isEnabled = false
+  }
+}
+
+tasks.check {
+  dependsOn(codeCoverageReport)
 }
