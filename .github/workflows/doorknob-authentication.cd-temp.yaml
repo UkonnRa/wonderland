@@ -24,6 +24,6 @@ jobs:
           docker push docker.io/ukonnra/doorknob-authentication:latest
       - name: Deploy to Heroku
         run: |
-          docker login --email=ukonnra@outlook.com --username=ukonnra --password=${{ secrets.HEROKU_API_KEY }} registry.heroku.com
-          docker tag docker.io/ukonnra/doorknob-authentication:latest registry.heroku.com/ukonnra/doorknob-authentication:latest
-          docker push registry.heroku.com/ukonnra/doorknob-authentication:latest
+          docker login --username=_ --password=${{ secrets.HEROKU_API_KEY }} registry.heroku.com
+          docker tag docker.io/ukonnra/doorknob-authentication:latest registry.heroku.com/wonderland-doorknob/authentication:latest
+          docker push registry.heroku.com/wonderland-doorknob/authentication:latest
