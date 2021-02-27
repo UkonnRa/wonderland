@@ -10,6 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: docker:dind
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
@@ -18,14 +19,12 @@ jobs:
           java-version: 11
       - name: Build DoorKnob Authentication image
         run: |
-          ./gradlew :doorknob-authentication:bootBuildImage \
-            -PimageTag=test \
-            -Pproduction \
-            -PdockerToken=${{ secrets.DOCKER_TOKEN }}
-      - uses: akhileshns/heroku-deploy@v3.12.12
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: "wonderland-doorknob-autht"
-          heroku_email: "ukonnra@outlook.com"
-          justlogin: true
-      - run: heroku auth:whoami
+          ./gradlew :doorknob-authentication:bootBuildImage -PimageTag=test -Pproduction -PdockerToken=${{ secrets.DOCKER_TOKEN }}
+          docker login -u ukonnra -p ${{ secrets.DOCKER_TOKEN }}
+          docker tag docker.io/ukonnra/doorknob-authentication:test docker.io/ukonnra/doorknob-authentication:latest
+          docker push docker.io/ukonnra/doorknob-authentication:latest
+      - name: Deploy to Heroku
+        run: |
+          docker login --email=ukonnra@outlook.com --username=ukonnra --password=${{ secrets.HEROKU_API_KEY }} registry.heroku.com
+          docker tag docker.io/ukonnra/doorknob-authentication:latest registry.heroku.com/ukonnra/doorknob-authentication:latest
+          docker push registry.heroku.com/ukonnra/doorknob-authentication:latest
