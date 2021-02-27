@@ -16,7 +16,7 @@ jobs:
         run: ./gradlew clean check
       - name: Build DoorKnob Authentication image
         run: |
-          export IMAGE_TAG=$(echo ${RAW_TAG#refs/heads/} | tr / _)
+          export IMAGE_TAG=$(echo ${GITHUB_REF#refs/heads/} | tr / _)
           ./gradlew :doorknob-authentication:bootBuildImage \
             -PimageTag=${IMAGE_TAG}_${GITHUB_RUN_NUMBER} \
             -Pproduction \
