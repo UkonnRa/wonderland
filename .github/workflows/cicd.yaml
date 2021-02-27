@@ -16,12 +16,11 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
-          ./gradlew clean check
+          ./gradlew clean check -Pproduction
           bash <(curl -s https://codecov.io/bash)
       - name: Build DoorKnob Authentication image
-        env:
-          IMAGE_TAG: $(echo ${GITHUB_REF#refs/heads/} | tr / _)
         run: |
+          export IMAGE_TAG=$(echo ${GITHUB_REF#refs/heads/} | tr / _)
           ./gradlew :doorknob-authentication:bootBuildImage \
             -PimageTag=${IMAGE_TAG}_${GITHUB_RUN_NUMBER} \
             -Pproduction \
