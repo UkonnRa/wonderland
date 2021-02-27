@@ -1,6 +1,8 @@
 name: Wonderland DoorKnob Authentication CD Temp
 
 on:
+  workflow_run:
+    workflows: [ "Wonderland DoorKnob Authentication CI" ]
   push:
     branches:
       - feature/github-actions

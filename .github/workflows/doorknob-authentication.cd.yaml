@@ -1,6 +1,8 @@
 name: Wonderland DoorKnob Authentication CD
 
 on:
+  workflow_run:
+    workflows: ["Wonderland DoorKnob Authentication CI"]
   push:
     paths:
       - "doorknob-authentication/**"
