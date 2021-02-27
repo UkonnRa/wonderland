@@ -26,7 +26,7 @@ class AuthorizationServerConfig @Autowired constructor(val jwk: RSAKey) {
     RegisteredClient.withId(UUID.randomUUID().toString())
       .clientId("messaging-client")
       .clientSecret("secret")
-      .clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+      .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
       .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
       .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
       .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)

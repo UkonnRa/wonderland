@@ -9,9 +9,9 @@ plugins {
   id("com.github.ben-manes.versions") version "0.36.0"
   id("org.springframework.boot") version "2.5.0-M2"
   id("io.spring.dependency-management") version "1.0.11.RELEASE"
-  kotlin("jvm") version "1.4.30"
-  kotlin("kapt") version "1.4.30"
-  kotlin("plugin.spring") version "1.4.30"
+  kotlin("jvm") version "1.4.31"
+  kotlin("kapt") version "1.4.31"
+  kotlin("plugin.spring") version "1.4.31"
 }
 
 object Versions {
@@ -30,7 +30,6 @@ allprojects {
   version = "0.0.1"
 
   repositories {
-    jcenter()
     mavenLocal()
     mavenCentral()
     maven { url = uri("https://repo.spring.io/milestone") }
@@ -118,6 +117,8 @@ subprojects {
   }
 
   tasks.bootBuildImage {
+    val imageTag = project.properties["imageTag"]!!
+    imageName = "ukonnra/${project.name}:$imageTag"
     builder = "paketobuildpacks/builder:tiny"
     environment = mapOf(
       "BP_BOOT_NATIVE_IMAGE" to "1",
@@ -132,5 +133,16 @@ subprojects {
       -Dspring.native.remove-yaml-support=true
       """.trimIndent()
     )
+
+    if (project.hasProperty("production")) {
+      isPublish = true
+      docker {
+        publishRegistry {
+          username = "ukonnra"
+          email = "ukonnra@outlook.com"
+          password = project.properties["dockerToken"]!!.toString()
+        }
+      }
+    }
   }
 }
