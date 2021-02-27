@@ -27,7 +27,7 @@ jobs:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
           docker login --username=_ --password=${HEROKU_API_KEY} registry.heroku.com
-          docker tag docker.io/ukonnra/doorknob-authentication:latest registry.heroku.com/wonderland-doorknob/authentication:latest
-          docker push registry.heroku.com/wonderland-doorknob/authentication:latest
+          docker tag docker.io/ukonnra/doorknob-authentication:latest registry.heroku.com/wonderland-doorknob/web:latest
+          docker push registry.heroku.com/wonderland-doorknob/web:latest
           curl https://cli-assets.heroku.com/install.sh | sh
-          heroku container:release -a wonderland-doorknob authentication
+          heroku container:release -a wonderland-doorknob web
