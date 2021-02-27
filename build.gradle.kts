@@ -1,4 +1,3 @@
-
 plugins {
   jacoco
   idea
@@ -30,6 +29,7 @@ allprojects {
   version = "0.0.1"
 
   repositories {
+    jcenter()
     mavenLocal()
     mavenCentral()
     maven { url = uri("https://repo.spring.io/milestone") }
@@ -68,10 +68,18 @@ subprojects {
   apply(plugin = "org.jetbrains.kotlin.kapt")
   apply(plugin = "org.jetbrains.kotlin.plugin.spring")
 
+  kapt.includeCompileClasspath = false
+
   configurations {
     developmentOnly
     runtimeClasspath {
       extendsFrom(configurations.developmentOnly.get())
+    }
+  }
+
+  dependencyManagement {
+    imports {
+      mavenBom("org.springframework.cloud:spring-cloud-dependencies:Hoxton.SR10")
     }
   }
 

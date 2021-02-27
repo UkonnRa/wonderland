@@ -16,6 +16,8 @@ import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 import java.util.UUID
 
+private const val KEY_SIZE = 2048
+
 @Configuration
 @EnableWebSecurity
 class ApplicationConfiguration {
@@ -46,7 +48,7 @@ class ApplicationConfiguration {
 
   @Bean
   fun jwk(): RSAKey = KeyPairGenerator.getInstance("RSA").let {
-    it.initialize(2048)
+    it.initialize(KEY_SIZE)
     val pair = it.generateKeyPair()
     RSAKey.Builder(pair.public as RSAPublicKey)
       .privateKey(pair.private as RSAPrivateKey)
