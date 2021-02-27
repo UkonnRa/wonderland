@@ -1,0 +1,14 @@
+formatting:
+  Indentation:
+    indentSize: 2
+    continuationIndentSize: 2
+  ParameterListWrapping:
+    indentSize: 2
+complexity:
+  LongParameterList:
+    functionThreshold: 8
+style:
+  ForbiddenComment:
+    values: []
+  ThrowsCount:
+    max: 5

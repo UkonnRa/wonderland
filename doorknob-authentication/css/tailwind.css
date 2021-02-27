@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.field-input {
+  @apply mt-1 w-full rounded border-gray-300 focus:border-blue-300 focus:ring-0 focus:ring-blue-500 focus:ring-opacity-50
+}
