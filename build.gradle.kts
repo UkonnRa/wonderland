@@ -37,7 +37,7 @@ allprojects {
   apply(plugin = "org.jetbrains.kotlin.kapt")
   apply(plugin = "org.jetbrains.kotlin.plugin.spring")
 
-  group = "com.ukonnra"
+  group = "com.ukonnra.wonderland"
   version = "0.0.1"
 
   repositories {
