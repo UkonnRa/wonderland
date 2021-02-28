@@ -1,7 +1,6 @@
-
 plugins {
-  jacoco
   idea
+  jacoco
 
   id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
   id("io.gitlab.arturbosch.detekt") version "1.16.0-RC2"
@@ -9,24 +8,30 @@ plugins {
   id("com.github.ben-manes.versions") version "0.36.0"
   id("org.springframework.boot") version "2.5.0-M2"
   id("io.spring.dependency-management") version "1.0.11.RELEASE"
-  kotlin("jvm") version "1.4.30"
-  kotlin("kapt") version "1.4.30"
-  kotlin("plugin.spring") version "1.4.30"
+  kotlin("jvm") version "1.4.31"
+  kotlin("kapt") version "1.4.31"
+  kotlin("plugin.spring") version "1.4.31"
 }
 
 object Versions {
-  const val JACKSON = "2.12.1"
-
-  const val FONT_AWESOME = "5.15.2"
-
   const val JAVA = "11"
 }
 
 allprojects {
+  apply(plugin = "idea")
+  apply(plugin = "jacoco")
+
   apply(plugin = "org.jlleitschuh.gradle.ktlint")
   apply(plugin = "io.gitlab.arturbosch.detekt")
 
-  group = "com.ukonnra"
+  apply(plugin = "com.github.ben-manes.versions")
+  apply(plugin = "org.springframework.boot")
+  apply(plugin = "io.spring.dependency-management")
+  apply(plugin = "org.jetbrains.kotlin.jvm")
+  apply(plugin = "org.jetbrains.kotlin.kapt")
+  apply(plugin = "org.jetbrains.kotlin.plugin.spring")
+
+  group = "com.ukonnra.wonderland"
   version = "0.0.1"
 
   repositories {
@@ -59,20 +64,18 @@ allprojects {
 }
 
 subprojects {
-  apply(plugin = "idea")
-  apply(plugin = "jacoco")
-
-  apply(plugin = "com.github.ben-manes.versions")
-  apply(plugin = "org.springframework.boot")
-  apply(plugin = "io.spring.dependency-management")
-  apply(plugin = "org.jetbrains.kotlin.jvm")
-  apply(plugin = "org.jetbrains.kotlin.kapt")
-  apply(plugin = "org.jetbrains.kotlin.plugin.spring")
+  kapt.includeCompileClasspath = false
 
   configurations {
     developmentOnly
     runtimeClasspath {
       extendsFrom(configurations.developmentOnly.get())
+    }
+  }
+
+  dependencyManagement {
+    imports {
+      mavenBom("org.springframework.cloud:spring-cloud-dependencies:Hoxton.SR10")
     }
   }
 
@@ -84,8 +87,6 @@ subprojects {
     implementation("org.springframework.boot:spring-boot-starter-security")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-    implementation("org.webjars:font-awesome:${Versions.FONT_AWESOME}")
-
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
@@ -94,9 +95,7 @@ subprojects {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-      exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
-    }
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
   }
 
   tasks.compileKotlin {
@@ -118,6 +117,8 @@ subprojects {
   }
 
   tasks.bootBuildImage {
+    val imageTag = project.properties["imageTag"]!!
+    imageName = "ukonnra/${project.name}:$imageTag"
     builder = "paketobuildpacks/builder:tiny"
     environment = mapOf(
       "BP_BOOT_NATIVE_IMAGE" to "1",
@@ -128,9 +129,41 @@ subprojects {
       --enable-all-security-services
       --enable-https
       --enable-http
-      -Dspring.spel.ignore=true
+      -Dspring.spel.ignore=false
       -Dspring.native.remove-yaml-support=true
       """.trimIndent()
     )
+
+    if (System.getProperty("spring.profiles.active").equals("production")) {
+      isPublish = true
+      docker {
+        publishRegistry {
+          username = "ukonnra"
+          email = "ukonnra@outlook.com"
+          password = project.properties["dockerToken"]!!.toString()
+        }
+      }
+    }
   }
+}
+
+val codeCoverageReport = tasks.register<JacocoReport>("codeCoverageReport") {
+  setDependsOn(subprojects.map { it.tasks.test })
+
+  executionData(fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec"))
+
+  subprojects.forEach {
+    sourceSets(it.sourceSets["main"])
+  }
+
+  reports {
+    xml.isEnabled = true
+    xml.destination = file("$buildDir/reports/jacoco/report.xml")
+    html.isEnabled = true
+    csv.isEnabled = false
+  }
+}
+
+tasks.check {
+  dependsOn(codeCoverageReport)
 }
