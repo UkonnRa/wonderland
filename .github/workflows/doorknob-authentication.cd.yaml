@@ -1,8 +1,6 @@
 name: Wonderland DoorKnob Authentication CD
 
 on:
-  workflow_run:
-    workflows: ["Wonderland DoorKnob Authentication CI"]
   push:
     paths:
       - "doorknob-authentication/**"
@@ -20,14 +18,16 @@ jobs:
           java-version: 11
       - name: Build DoorKnob Authentication image
         run: |
-          ./gradlew :doorknob-authentication:bootBuildImage \
-            -PimageTag=${GITHUB_REF#refs/tags/} \
-            -Pproduction \
-            -PdockerToken=${{ secrets.DOCKER_TOKEN }}
-      - uses: akhileshns/heroku-deploy@v3.12.12
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: "wonderland-doorknob-autht"
-          heroku_email: "ukonnra@outlook.com"
-          justlogin: true
-      - run: heroku auth:whoami
+          ./gradlew :doorknob-authentication:bootBuildImage -PimageTag=${GITHUB_REF#refs/tags/} -Dspring.profiles.active=production -PdockerToken=${{ secrets.DOCKER_TOKEN }}
+          docker login -u ukonnra -p ${{ secrets.DOCKER_TOKEN }}
+          docker tag docker.io/ukonnra/doorknob-authentication:${GITHUB_REF#refs/tags/} docker.io/ukonnra/doorknob-authentication:latest
+          docker push docker.io/ukonnra/doorknob-authentication:latest
+      - name: Deploy to Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          docker login --username=_ --password=${HEROKU_API_KEY} registry.heroku.com
+          docker tag docker.io/ukonnra/doorknob-authentication:latest registry.heroku.com/wonderland-doorknob/web:latest
+          docker push registry.heroku.com/wonderland-doorknob/web:latest
+          curl https://cli-assets.heroku.com/install.sh | sh
+          heroku container:release -a wonderland-doorknob web

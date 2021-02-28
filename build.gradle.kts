@@ -1,6 +1,5 @@
 plugins {
   idea
-  java
   jacoco
 
   id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
@@ -15,16 +14,11 @@ plugins {
 }
 
 object Versions {
-  const val JACKSON = "2.12.1"
-
-  const val FONT_AWESOME = "5.15.2"
-
   const val JAVA = "11"
 }
 
 allprojects {
   apply(plugin = "idea")
-  apply(plugin = "java")
   apply(plugin = "jacoco")
 
   apply(plugin = "org.jlleitschuh.gradle.ktlint")
@@ -93,8 +87,6 @@ subprojects {
     implementation("org.springframework.boot:spring-boot-starter-security")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-    implementation("org.webjars:font-awesome:${Versions.FONT_AWESOME}")
-
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
@@ -142,7 +134,7 @@ subprojects {
       """.trimIndent()
     )
 
-    if (project.hasProperty("production")) {
+    if (System.getProperty("spring.profiles.active").equals("production")) {
       isPublish = true
       docker {
         publishRegistry {

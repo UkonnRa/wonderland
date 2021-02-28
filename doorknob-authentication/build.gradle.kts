@@ -4,6 +4,8 @@ plugins {
 
 object Versions {
   const val SPRING_AUTH_SERVER = "0.1.0"
+
+  const val FONT_AWESOME = "5.15.2"
 }
 
 dependencies {
@@ -14,15 +16,15 @@ dependencies {
   }
   implementation("org.apache.tomcat.experimental:tomcat-embed-programmatic:${dependencyManagement.importedProperties["tomcat.version"]}")
 
+  implementation("org.webjars:font-awesome:${Versions.FONT_AWESOME}")
+
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 }
 
 val tailwindCss = tasks.register<com.github.gradle.node.npm.task.NpxTask>("tailwindcss") {
   dependsOn(tasks.npmInstall)
 
-  if (project.hasProperty("production")) {
-    environment.put("NODE_ENV", "production")
-  }
+  System.getProperty("spring.profiles.active")?.let { environment.put("NODE_ENV", it) }
 
   val generatedFile = "build/resources/main/static/css/tailwind-generated.css"
 
