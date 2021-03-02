@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.ukonnra.wonderland.doorknob.proto";
+option java_outer_classname = "DoorKnobProto";
+
+package doorknob;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+
+service UserEndpoint {
+  rpc GetById(google.protobuf.StringValue) returns (User);
+  rpc GetByIdentifier(google.protobuf.StringValue) returns (User);
+
+  rpc Create(CreateUserInput) returns (User);
+  rpc Update(UpdateUserInput) returns (User);
+  rpc Delete(google.protobuf.StringValue) returns (User);
+}
+
+message User {
+  string id = 1;
+  string email = 2;
+  string passwordDigest = 3;
+  string nickname = 4;
+  google.protobuf.Timestamp createdAt = 5;
+  google.protobuf.Timestamp lastUpdatedAt = 6;
+  Role role = 7;
+  bool verified = 8;
+  bool disabled = 9;
+}
+
+enum Role {
+  OWNER = 0;
+  ADMIN = 1;
+  USER = 2;
+}
+
+message CreateUserInput {
+  string email = 1;
+  string password = 2;
+  string nickname = 3;
+  Role role = 4;
+}
+
+message UpdateUserInput {
+  string id = 1;
+  string email = 2;
+  string password = 3;
+  string nickname = 4;
+  Role role = 5;
+}

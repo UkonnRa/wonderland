@@ -16,6 +16,7 @@ pluginManagement {
 rootProject.name = "wonderland"
 
 include(
+  ":infrastructure",
   ":doorknob-authentication",
-  ":doorknob-gateway",
+  ":doorknob-proto",
 )
